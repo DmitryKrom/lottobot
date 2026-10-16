@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: '3'
+
+vars:
+  GREETING: Hello, world!
+
+tasks:
+  default:
+    desc: Print a greeting message
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true
+
+  run:
+    desc: Run the Bot
+    cmds:
+      - ./lottobot.exe
+
+  build:
+    desc: Build the Project
+    cmds:
+      - go build .
+
+  rm: 
+    desc: Delete exe File
+    cmds:
+      - rm ./lottobot.exe
+  make:
+    desc: Delete, Build, Run
+    cmds:
+      - task rm
+      - task build
+      - task run
+  tidy:
+    desc: Downloads dependencies and removes unused ones
+    cmds:
+      - go mod tidy
+
+  lint:
+    desc: Uses golangci-lint
+    cmds:
+      - golangci-lint run
+
+  vuln:
+    desc: Run Go Vulnerability Check
+    cmds:
+      - govulncheck ./...
+
+  display:op:
+    desc: "Op"
+    cmds:
+      - echo '{{if eq OS "windows"}}Running on Windows!{{else}}Running on Unix!{{end}}'
+
+  install:golangci:
+    desc: Install golangci linter
+    cmds:
+      - cmd: winget install -e --id GolangCI.golangci-lint --silent
+        ignore_error: true
+      - cmd: golangci-lint --version
+
+  install:vuln:
+    desc: Install Go Vulnerability Check
+    cmds:
+      - go install golang.org/x/vuln/cmd/govulncheck@latest
+
+  install:goose:
+    desc: Install golang migration tool
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@latest
+  
+  install:tools:
+    desc: Install all optional cli tools
+    dir: scripts
+    cmds:
+      - task: install:golangci
+      - task: install:goose
+      - task: install:vuln
+    silent: true
